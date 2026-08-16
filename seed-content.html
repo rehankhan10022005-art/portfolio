@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seed Content — one-time setup</title>
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  body{ font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 0 1.5rem; line-height:1.6; color:#241817; }
+  h1{ font-size: 1.4rem; }
+  button{ font-size: 1rem; padding: .8rem 1.4rem; border-radius: 8px; border: 1px solid #241817; background:#241817; color:#fff; cursor:pointer; }
+  button[disabled]{ opacity:.5; cursor:not-allowed; }
+  pre{ background:#f4e7d8; padding: 1rem; border-radius: 8px; overflow:auto; font-size:.8rem; }
+  .status{ margin-top: 1rem; font-size: .9rem; }
+  .warn{ color:#8a1f1f; }
+  .ok{ color:#1f6b2e; }
+</style>
+</head>
+<body>
+  <h1>One-time content seed</h1>
+  <p>
+    This writes your site's current content (the same data embedded in
+    <code>index.html</code>) into Firestore at <code>content/site</code>,
+    <strong>only if that document doesn't already exist</strong>. Run this
+    once, right after setting up Firebase, before you use the Admin panel.
+    You can delete this file from your repo afterwards — it's not linked
+    from anywhere on the public site.
+  </p>
+  <p>You must be signed in as the admin account first.</p>
+  <div id="gate">Checking session…</div>
+  <div id="app" hidden>
+    <button id="seedBtn">Seed Firestore now</button>
+    <button id="forceBtn" style="background:#8a1f1f;border-color:#8a1f1f;">Overwrite existing doc</button>
+    <div class="status" id="status"></div>
+  </div>
+
+<script type="module">
+  import { auth, db, ADMIN_EMAIL, CONTENT_DOC_PATH } from './firebase-init.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+  import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+  // Same content shape as index.html's #site-data — the starting point for
+  // both the public site and the Admin media editor.
+  const SEED_CONTENT = {
+    cloudinary: { cloudName: "cowoq8sh" },
+    hero: { image: "", video: "" },
+    services: [
+      {"num":"01","title":"Full-Stack Web","desc":"Designing, developing and publishing complete digital experiences."},
+      {"num":"02","title":"UI / UX","desc":"Interfaces designed around clarity, usability and emotion."},
+      {"num":"03","title":"Content","desc":"Video, storytelling, educational content and personal branding."},
+      {"num":"04","title":"Marketing","desc":"Strategy, positioning, customer acquisition and growth."},
+      {"num":"05","title":"Sales","desc":"Building systems that turn attention into action."},
+      {"num":"06","title":"Education","desc":"Personal online classes, self-improvement, knowledge and practical learning."},
+      {"num":"07","title":"Entrepreneurship","desc":"Building and experimenting with brands, products and businesses."},
+      {"num":"08","title":"Lifestyle Brands","desc":"Clothing and beverage ventures."}
+    ],
+    projects: [
+      {"id":"project-1","num":"01","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Web · Brand","url":""},
+      {"id":"project-2","num":"02","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Product · UI","url":""},
+      {"id":"project-3","num":"03","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Content · Growth","url":""}
+    ],
+    reel: {
+      src: "https://res.cloudinary.com/cowoq8sh/video/upload/v1786863621/Hand_grabbing_chicken_drumstick_202608091539_xu4nh0.mp4",
+      poster: "https://res.cloudinary.com/cowoq8sh/image/upload/v1786863589/ChatGPT_Image_Aug_9_2026_03_57_40_AM_zj29yr.png",
+      type: "cloudinary_video"
+    },
+    youtubeUrl: "",
+    content: [
+      {"cat":"Self-Improvement","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":""},
+      {"cat":"Knowledge","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":""},
+      {"cat":"Health & Fitness","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":""},
+      {"cat":"Wealth","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":""},
+      {"cat":"Business","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":""},
+      {"cat":"Marketing","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":""}
+    ],
+    testimonials: []
+  };
+
+  const gate = document.getElementById('gate');
+  const app = document.getElementById('app');
+  const status = document.getElementById('status');
+  const seedBtn = document.getElementById('seedBtn');
+  const forceBtn = document.getElementById('forceBtn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === ADMIN_EMAIL) {
+      gate.hidden = true;
+      app.hidden = false;
+    } else {
+      gate.textContent = 'Not signed in as the admin account. Go sign in at admin-login.html first, then come back to this page.';
+    }
+  });
+
+  async function seed(force){
+    seedBtn.disabled = true; forceBtn.disabled = true;
+    status.textContent = 'Working…';
+    status.className = 'status';
+    try {
+      const ref = doc(db, ...CONTENT_DOC_PATH);
+      const snap = await getDoc(ref);
+      if (snap.exists() && !force){
+        status.textContent = 'A content/site document already exists — nothing written. Use "Overwrite existing doc" if you really want to replace it.';
+        status.className = 'status warn';
+        return;
+      }
+      await setDoc(ref, SEED_CONTENT);
+      status.textContent = 'Done — content/site now holds the full starting content. Your Admin panel and public site will use it from now on.';
+      status.className = 'status ok';
+    } catch (e) {
+      status.textContent = 'Error: ' + (e.message || e);
+      status.className = 'status warn';
+    } finally {
+      seedBtn.disabled = false; forceBtn.disabled = false;
+    }
+  }
+
+  seedBtn.addEventListener('click', () => seed(false));
+  forceBtn.addEventListener('click', () => {
+    if (confirm('This will overwrite the existing content/site document. Continue?')) seed(true);
+  });
+</script>
+</body>
+</html>

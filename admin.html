@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Admin — SAEED</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<script>
+(function(){
+  try{
+    var stored = localStorage.getItem('saeed-theme');
+    var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --serif: "Bodoni Moda", "Playfair Display", serif;
+  --sans: "DM Sans", "Inter", sans-serif;
+  --ease: cubic-bezier(.16,.84,.24,1);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme="light"]{
+  --burgundy:#2A1019; --brown:#68453A; --rose:#C9827D; --peach:#D9968E;
+  --cream:#F4E7D8; --ink:#241817; --bg:#F8F0E6; --bg-alt:#F4E7D8;
+  --text:#241817; --text-dim:rgba(36,24,23,.7); --border:rgba(36,24,23,.14); --card:rgba(36,24,23,.04);
+}
+:root[data-theme="dark"]{
+  --burgundy:#1a0a10; --brown:#8a6153; --rose:#d99893; --peach:#e6ada3;
+  --cream:#efe3d3; --ink:#efe3d3; --bg:#15100f; --bg-alt:#1c1513;
+  --text:#efe3d3; --text-dim:rgba(239,227,211,.68); --border:rgba(239,227,211,.14); --card:rgba(239,227,211,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{ background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100svh; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; border:none; background:none; cursor:pointer; color:inherit; }
+
+/* ---------- Shell layout ---------- */
+.shell{ display:grid; grid-template-columns:240px 1fr; min-height:100svh; }
+@media (max-width:860px){ .shell{ grid-template-columns:1fr; } }
+
+/* Sidebar (desktop) / drawer (mobile) */
+.sidebar{
+  background:var(--ink); color:var(--cream); padding:1.6rem 1.2rem calc(1.6rem + var(--safe-b));
+  display:flex; flex-direction:column; gap:.3rem;
+}
+:root[data-theme="dark"] .sidebar{ background:#0c0708; }
+.sidebar .brand{ font-family:var(--serif); font-size:1.4rem; margin-bottom:1.6rem; padding:0 .6rem; }
+.sidebar a{
+  font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; padding:.9rem .6rem;
+  border-radius:4px; min-height:44px; display:flex; align-items:center; opacity:.75;
+}
+.sidebar a:hover, .sidebar a.active{ opacity:1; background:rgba(244,231,216,.08); }
+.sidebar .logout{ margin-top:auto; opacity:.6; }
+
+@media (max-width:860px){
+  .sidebar{
+    position:fixed; inset:0; z-index:2000; transform:translateX(-100%);
+    transition:transform .4s var(--ease); overflow-y:auto;
+    padding-top:calc(1.6rem + var(--safe-t));
+  }
+  .sidebar.open{ transform:translateX(0); }
+}
+
+/* Topbar (mobile only) */
+.topbar{ display:none; }
+@media (max-width:860px){
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: calc(1rem + var(--safe-t)) 1.2rem 1rem; border-bottom:1px solid var(--border);
+    position:sticky; top:0; background:var(--bg); z-index:10;
+  }
+  .topbar .menu-btn{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+}
+
+main{ padding:2.4rem clamp(1.2rem,4vw,2.6rem); }
+main h1{ font-family:var(--serif); font-weight:700; text-transform:uppercase; font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:.4rem; }
+main .lede{ color:var(--text-dim); font-size:.9rem; margin-bottom:2.2rem; }
+
+.card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1.2rem; }
+.panel{ border:1px solid var(--border); border-radius:6px; padding:1.4rem; background:var(--card); }
+.panel h3{ font-family:var(--serif); font-size:1.1rem; margin-bottom:.5rem; }
+.panel p{ font-size:.82rem; color:var(--text-dim); line-height:1.6; }
+
+.gate{ min-height:100svh; display:flex; align-items:center; justify-content:center; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{ outline:2px solid var(--rose); outline-offset:3px; }
+.panel-link{ display:inline-block; margin-top:.7rem; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:2px; }
+
+/* ---------- Media editor ---------- */
+#media-editor{ margin-top:3.2rem; padding-top:2.4rem; border-top:1px solid var(--border); }
+#media-editor h2{ font-family:var(--serif); font-weight:700; text-transform:uppercase; font-size:clamp(1.4rem,3vw,1.9rem); margin-bottom:.4rem; }
+#media-editor .lede{ color:var(--text-dim); font-size:.85rem; margin-bottom:1.2rem; max-width:60ch; }
+.conn-banner{ font-size:.78rem; padding:.9rem 1.1rem; border-radius:6px; margin-bottom:1.8rem; border:1px solid var(--border); line-height:1.6; display:none; }
+.conn-banner.show{ display:block; }
+.conn-banner.warn{ background:rgba(201,130,125,.1); border-color:rgba(201,130,125,.35); }
+.conn-banner.ok{ background:rgba(104,69,58,.08); border-color:rgba(104,69,58,.3); }
+.conn-banner code{ font-family:monospace; background:var(--card); padding:.1rem .35rem; border-radius:3px; font-size:.9em; }
+
+.media-group{ margin-bottom:2.4rem; }
+.media-group > h3{ font-family:var(--serif); font-size:1rem; text-transform:uppercase; letter-spacing:.04em; margin-bottom:.9rem; color:var(--brown); }
+.media-item-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.1rem; }
+
+.media-card{ border:1px solid var(--border); border-radius:8px; background:var(--card); overflow:hidden; display:flex; flex-direction:column; }
+.media-card.is-dirty{ border-color:var(--rose); }
+.media-preview{ aspect-ratio:16/10; background:linear-gradient(155deg, var(--border), transparent); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.media-preview img, .media-preview video{ width:100%; height:100%; object-fit:cover; display:block; }
+.media-preview .empty-note{ font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:center; padding:0 1rem; }
+.media-card-body{ padding:1rem 1.1rem 1.2rem; display:flex; flex-direction:column; gap:.6rem; }
+.media-card-body h4{ font-family:var(--serif); font-size:1rem; }
+.media-meta-row{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; font-size:.7rem; }
+.type-badge{ font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; padding:.25rem .55rem; border-radius:100px; background:var(--border); white-space:nowrap; }
+.type-badge.is-empty{ opacity:.6; }
+.dirty-badge{ font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--rose); display:none; }
+.is-dirty .dirty-badge{ display:inline; }
+.media-field{ font-size:.7rem; }
+.media-field label{ display:block; letter-spacing:.08em; text-transform:uppercase; opacity:.6; margin-bottom:.3rem; font-size:.62rem; }
+.media-field .value-row{ display:flex; gap:.4rem; align-items:center; }
+.media-field input[type=text], .media-field select{
+  width:100%; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:.5rem .6rem;
+  color:var(--text); font-family:monospace; font-size:.72rem; min-height:38px;
+}
+.media-field select{ font-family:var(--sans); }
+.publicid{ font-family:monospace; font-size:.68rem; opacity:.65; word-break:break-all; }
+.media-actions{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.2rem; }
+.mbtn{
+  font-size:.66rem; letter-spacing:.08em; font-weight:700; text-transform:uppercase; padding:.55rem .9rem;
+  border-radius:100px; border:1px solid var(--border); min-height:38px; transition:background .25s var(--ease), border-color .25s var(--ease);
+}
+.mbtn:hover{ background:rgba(244,231,216,.08); border-color:var(--brown); }
+.mbtn.primary{ background:var(--burgundy); color:var(--cream); border-color:var(--burgundy); }
+:root[data-theme="dark"] .mbtn.primary{ background:var(--rose); color:var(--burgundy); border-color:var(--rose); }
+.mbtn.primary:hover{ opacity:.9; }
+.mbtn[disabled]{ opacity:.45; cursor:not-allowed; }
+.mbtn.danger{ color:var(--peach); }
+.replace-form{ display:none; flex-direction:column; gap:.5rem; margin-top:.4rem; padding-top:.6rem; border-top:1px dashed var(--border); }
+.replace-form.open{ display:flex; }
+.item-status{ font-size:.68rem; min-height:1.2em; }
+.item-status.error{ color:var(--peach); }
+.item-status.success{ color:var(--brown); }
+.upload-progress{ font-size:.66rem; opacity:.7; display:none; }
+.upload-progress.show{ display:block; }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">Checking session…</div>
+
+<div id="app" class="shell" hidden>
+  <nav class="sidebar" id="sidebar" aria-label="Admin">
+    <div class="brand">SAEED.</div>
+    <a href="#projects" class="active">Projects</a>
+    <a href="#content">Content</a>
+    <a href="#testimonials">Testimonials</a>
+    <a href="#media">Media</a>
+    <a href="#social">Social Links</a>
+    <a href="#settings">Site Settings</a>
+    <a href="#" id="logoutLink" class="logout">Log Out</a>
+  </nav>
+
+  <div>
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+      <span style="font-family:var(--serif); font-size:1.1rem;">SAEED. Admin</span>
+      <span style="width:44px;"></span>
+    </header>
+
+    <main>
+      <h1>Dashboard</h1>
+      <p class="lede">Manage the site's projects, content and settings from here.</p>
+      <div class="card-grid">
+        <div class="panel" id="projects"><h3>Projects</h3><p>Add, edit, or reorder work shown in the Work section.</p></div>
+        <div class="panel" id="content"><h3>Content</h3><p>Manage READ / WATCH entries shown in the Content section.</p></div>
+        <div class="panel" id="testimonials"><h3>Testimonials</h3><p>Add or remove client quotes.</p></div>
+        <div class="panel" id="media"><h3>Media</h3><p>Upload and manage images and video used across the site.</p><a href="#media-editor" class="panel-link">Manage Media ↓</a></div>
+        <div class="panel" id="social"><h3>Social Links</h3><p>Update Instagram, email and other public contact links.</p></div>
+        <div class="panel" id="settings"><h3>Site Settings</h3><p>Theme defaults, SEO metadata, and general configuration.</p></div>
+      </div>
+
+      <section id="media-editor" aria-label="Media library">
+        <h2>Media Library</h2>
+        <p class="lede">Every image and video the public site can show, in one place. Replace, upload, or remove an asset here, then Save — the public site picks up the change on next load.</p>
+        <div class="conn-banner" id="connBanner" role="status"></div>
+        <div id="mediaGroups"><!-- populated by JS --></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+/*
+  Route-protection contract for admin.html:
+  Firebase Auth's onAuthStateChanged is the source of truth for "is anyone
+  signed in", and the ADMIN_EMAIL check below is the source of truth for
+  "is it the right person". This page never assumes it's authorized — it
+  waits for Firebase's verdict and redirects to admin-login.html if there's
+  no session, or if the signed-in account isn't the admin account.
+
+  This is a UX gate only. The real security boundary is firestore.rules,
+  which independently checks request.auth.token.email server-side before
+  allowing any write — so even if this client-side check were bypassed,
+  Firestore itself would still refuse the write.
+*/
+import { auth, db, ADMIN_EMAIL, CONTENT_DOC_PATH } from './firebase-init.js';
+import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, CLOUDINARY_FOLDER } from './cloudinary-config.js';
+
+onAuthStateChanged(auth, (user) => {
+  if (user && user.email === ADMIN_EMAIL) {
+    document.getElementById('gate').hidden = true;
+    document.getElementById('app').hidden = false;
+    initMediaEditor();
+  } else {
+    window.location.href = 'admin-login.html';
+  }
+});
+
+document.getElementById('logoutLink').addEventListener('click', async (e) => {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+  } finally {
+    window.location.href = 'admin-login.html';
+  }
+});
+
+/* Mobile sidebar → drawer */
+const sidebar = document.getElementById('sidebar');
+const menuBtn = document.getElementById('menuBtn');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
+  sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }));
+}
+
+/* ==================================================================
+   Media Library
+   ------------------------------------------------------------------
+   Reads and writes the exact same content shape the public site reads
+   from Firestore (content/site — see the "Render data-driven sections"
+   comment in index.html). This is not a second data system — it's the
+   editor for the one document the public site listens to live.
+
+   Data flow:
+     Firestore doc content/site   -> read on load, written on Save (auth required by firestore.rules)
+     Cloudinary unsigned preset   -> browser uploads the file directly, no backend involved
+   Public visitors get updates the moment Save succeeds, via the
+   Firestore real-time listener in index.html — no rebuild, no redeploy.
+   ================================================================== */
+
+const CLOUDINARY_CLOUD_FALLBACK = CLOUDINARY_CLOUD_NAME; // from cloudinary-config.js
+
+// Used only when the Firestore content document doesn't exist yet (i.e.
+// before you've run seed-content.html once). Mirrors the FULL shape
+// embedded in index.html's #site-data — not just the media fields — so
+// that if Save is ever clicked before seeding, it writes a complete,
+// correct document instead of overwriting real project/content text
+// with blanks. See seed-content.html for the recommended one-time setup.
+const DEFAULT_CONTENT = {
+  cloudinary: { cloudName: CLOUDINARY_CLOUD_FALLBACK },
+  hero: { image: '', video: '', videoPoster: '' },
+  services: [
+    {"num":"01","title":"Full-Stack Web","desc":"Designing, developing and publishing complete digital experiences."},
+    {"num":"02","title":"UI / UX","desc":"Interfaces designed around clarity, usability and emotion."},
+    {"num":"03","title":"Content","desc":"Video, storytelling, educational content and personal branding."},
+    {"num":"04","title":"Marketing","desc":"Strategy, positioning, customer acquisition and growth."},
+    {"num":"05","title":"Sales","desc":"Building systems that turn attention into action."},
+    {"num":"06","title":"Education","desc":"Personal online classes, self-improvement, knowledge and practical learning."},
+    {"num":"07","title":"Entrepreneurship","desc":"Building and experimenting with brands, products and businesses."},
+    {"num":"08","title":"Lifestyle Brands","desc":"Clothing and beverage ventures."}
+  ],
+  reel: {
+    src: 'https://res.cloudinary.com/cowoq8sh/video/upload/v1786863621/Hand_grabbing_chicken_drumstick_202608091539_xu4nh0.mp4',
+    poster: 'https://res.cloudinary.com/cowoq8sh/image/upload/v1786863589/ChatGPT_Image_Aug_9_2026_03_57_40_AM_zj29yr.png',
+    type: 'cloudinary_video'
+  },
+  youtubeUrl: '',
+  projects: [
+    {"id":"project-1","num":"01","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Web · Brand","url":"","media":null},
+    {"id":"project-2","num":"02","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Product · UI","url":"","media":null},
+    {"id":"project-3","num":"03","title":"Project Name","category":"Category — Placeholder","description":"Add a real project title, category and outcome from the data object above once available.","tag":"Content · Growth","url":"","media":null}
+  ],
+  content: [
+    {"cat":"Self-Improvement","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":"","image":""},
+    {"cat":"Knowledge","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":"","image":""},
+    {"cat":"Health & Fitness","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":"","image":""},
+    {"cat":"Wealth","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":"","image":""},
+    {"cat":"Business","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Read","url":"","date":"","image":""},
+    {"cat":"Marketing","title":"Article Title","desc":"Short description placeholder text goes here.","action":"Watch","url":"","date":"","image":""}
+  ],
+  testimonials: []
+};
+
+const MEDIA_SCHEMA = [
+  { group: 'Hero', items: [
+    { id:'hero-image', label:'Hero — Image', kind:'image', path:'hero.image',
+      note:'Not rendered on the public hero yet — that section is intentionally text-only today. Safe to set now for whenever it\u2019s wired in.' },
+    { id:'hero-video', label:'Hero — Video', kind:'video', path:'hero.video', posterPath:'hero.videoPoster',
+      note:'Not rendered on the public hero yet — that section is intentionally text-only today. Safe to set now for whenever it\u2019s wired in.' }
+  ]},
+  { group: 'Showreel', items: [
+    { id:'reel', label:'Showreel', kind:'video', path:'reel.src', posterPath:'reel.poster' }
+  ]},
+  { group: 'Projects', items: [0,1,2].map(i => ({
+    id:'project-'+i, label:`Project ${i+1} — Media`, kind:'toggle',
+    path:`projects.${i}.media.src`, typePath:`projects.${i}.media.type`, posterPath:`projects.${i}.media.poster`
+  })) },
+  { group: 'Content Thumbnails', items: [0,1,2,3,4,5].map(i => ({
+    id:'content-'+i, label:`Content ${i+1} — Thumbnail`, kind:'image', path:`content.${i}.image`
+  })) }
+];
+
+let mediaContent = null;
+let mediaBackendOk = false;
+
+function getPath(obj, path){
+  return path.split('.').reduce((o,k) => (o == null ? undefined : o[k]), obj);
+}
+function setPath(obj, path, value){
+  const parts = path.split('.');
+  let cur = obj;
+  for (let i=0;i<parts.length-1;i++){
+    const k = parts[i];
+    if (cur[k] == null || typeof cur[k] !== 'object') cur[k] = {};
+    cur = cur[k];
+  }
+  cur[parts[parts.length-1]] = value;
+}
+
+/* Display-only: pulls a Cloudinary public ID out of a delivery URL
+   (".../upload/v169.../folder/name.png" -> "folder/name"). Null for anything else. */
+function parsePublicId(url){
+  if (!url || typeof url !== 'string') return null;
+  const m = url.match(/\/upload\/(?:[a-z_]+[^/]*\/)*v\d+\/(.+)\.[a-zA-Z0-9]+$/);
+  return m ? m[1] : null;
+}
+
+function cldPreview(url, transform){
+  if (!url || typeof url !== 'string') return url || '';
+  const marker = '/upload/';
+  const i = url.indexOf(marker);
+  if (url.indexOf('res.cloudinary.com') === -1 || i === -1) return url;
+  return url.slice(0, i + marker.length) + transform + '/' + url.slice(i + marker.length);
+}
+
+function itemKindNow(item){
+  if (item.kind !== 'toggle') return item.kind;
+  const t = getPath(mediaContent, item.typePath) || '';
+  return t.indexOf('video') !== -1 ? 'video' : 'image';
+}
+
+function findItemById(id){
+  for (const g of MEDIA_SCHEMA) for (const it of g.items) if (it.id === id) return it;
+  return null;
+}
+
+function renderMediaGroups(){
+  const root = document.getElementById('mediaGroups');
+  root.innerHTML = '';
+  MEDIA_SCHEMA.forEach(group => {
+    const g = document.createElement('div');
+    g.className = 'media-group';
+    g.innerHTML = `<h3>${group.group}</h3><div class="media-item-grid"></div>`;
+    const grid = g.querySelector('.media-item-grid');
+    group.items.forEach(item => grid.appendChild(renderMediaCard(item)));
+    root.appendChild(g);
+  });
+}
+
+function renderMediaCard(item){
+  const kind = itemKindNow(item);
+  const src = getPath(mediaContent, item.path) || '';
+  const showPoster = !!item.posterPath && kind === 'video';
+  const poster = showPoster ? (getPath(mediaContent, item.posterPath) || '') : '';
+  const publicId = parsePublicId(src);
+  const dirty = !!item._dirty;
+
+  const card = document.createElement('div');
+  card.className = 'media-card' + (dirty ? ' is-dirty' : '');
+  card.dataset.itemId = item.id;
+
+  let previewHtml;
+  if (!src){
+    previewHtml = `<div class="empty-note">No media set<br>— public site shows its elegant placeholder —</div>`;
+  } else if (kind === 'video'){
+    previewHtml = `<video src="${cldPreview(src,'f_auto,q_auto,w_500')}"${poster ? ` poster="${cldPreview(poster,'f_auto,q_auto,w_500')}"` : ''} muted loop playsinline preload="metadata" autoplay></video>`;
+  } else {
+    previewHtml = `<img src="${cldPreview(src,'f_auto,q_auto,w_500')}" alt="" loading="lazy" />`;
+  }
+
+  const typeControl = item.kind === 'toggle'
+    ? `<select class="type-select" data-role="type-select">
+         <option value="cloudinary_image" ${kind==='image'?'selected':''}>Image</option>
+         <option value="cloudinary_video" ${kind==='video'?'selected':''}>Video</option>
+       </select>`
+    : `<span class="type-badge ${src ? '' : 'is-empty'}">${src ? (kind==='video'?'Video':'Image') : 'Empty'}</span>`;
+
+  card.innerHTML = `
+    <div class="media-preview">${previewHtml}</div>
+    <div class="media-card-body">
+      <div class="media-meta-row">
+        <h4>${item.label}</h4>
+        <span class="dirty-badge">Unsaved</span>
+      </div>
+      <div class="media-meta-row">${typeControl}<span class="publicid">${publicId ? 'ID: ' + publicId : (src ? 'External URL' : '—')}</span></div>
+      <div class="media-field">
+        <label>Current URL</label>
+        <input type="text" readonly value="${src ? src.replace(/"/g,'&quot;') : ''}" placeholder="Not set" data-role="url-display" />
+      </div>
+      ${showPoster ? `
+      <div class="media-field">
+        <label>Poster</label>
+        <input type="text" readonly value="${poster ? poster.replace(/"/g,'&quot;') : ''}" placeholder="No poster set" data-role="poster-display" />
+      </div>` : ''}
+      <div class="media-actions">
+        <button type="button" class="mbtn" data-action="replace">Replace</button>
+        <button type="button" class="mbtn" data-action="upload">Upload</button>
+        <input type="file" accept="${kind==='video' ? 'video/*' : 'image/*'}" data-role="file-input" hidden />
+        <button type="button" class="mbtn danger" data-action="remove" ${src ? '' : 'disabled'}>Remove</button>
+        <button type="button" class="mbtn primary" data-action="save" ${dirty ? '' : 'disabled'}>Save</button>
+      </div>
+      <div class="replace-form" data-role="replace-form">
+        <div class="media-field">
+          <label>New URL</label>
+          <input type="text" data-role="replace-url" placeholder="https://res.cloudinary.com/${(mediaContent.cloudinary && mediaContent.cloudinary.cloudName) || CLOUDINARY_CLOUD_FALLBACK}/..." />
+        </div>
+        <div class="media-actions">
+          <button type="button" class="mbtn primary" data-action="confirm-replace">Use this URL</button>
+          <button type="button" class="mbtn" data-action="cancel-replace">Cancel</button>
+        </div>
+      </div>
+      <p class="upload-progress" data-role="upload-progress">Uploading…</p>
+      <p class="item-status" data-role="status"></p>
+      ${item.note ? `<p class="item-status" style="opacity:.6">${item.note}</p>` : ''}
+    </div>`;
+
+  wireMediaCard(card, item);
+  return card;
+}
+
+function setItemStatus(card, msg, type){
+  const el = card.querySelector('[data-role="status"]');
+  el.textContent = msg || '';
+  el.className = 'item-status' + (type ? ' ' + type : '');
+}
+
+function markDirty(item, card){
+  item._dirty = true;
+  card.classList.add('is-dirty');
+  card.querySelector('[data-action="save"]').disabled = false;
+}
+
+function rerenderCard(item){
+  const old = document.querySelector(`.media-card[data-item-id="${item.id}"]`);
+  if (!old) return;
+  const fresh = renderMediaCard(item);
+  old.replaceWith(fresh);
+}
+
+function wireMediaCard(card, item){
+  const fileInput = card.querySelector('[data-role="file-input"]');
+  const replaceForm = card.querySelector('[data-role="replace-form"]');
+
+  card.querySelector('[data-action="replace"]').addEventListener('click', () => {
+    replaceForm.classList.toggle('open');
+  });
+  card.querySelector('[data-action="cancel-replace"]').addEventListener('click', () => {
+    replaceForm.classList.remove('open');
+  });
+  card.querySelector('[data-action="confirm-replace"]').addEventListener('click', () => {
+    const url = card.querySelector('[data-role="replace-url"]').value.trim();
+    if (!url){ setItemStatus(card, 'Paste a URL first.', 'error'); return; }
+    setPath(mediaContent, item.path, url);
+    markDirty(item, card);
+    setItemStatus(card, 'URL updated locally — click Save to publish.', '');
+    rerenderCard(item);
+  });
+
+  card.querySelector('[data-action="upload"]').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0];
+    fileInput.value = '';
+    if (file) await uploadMediaFile(item, card, file);
+  });
+
+  card.querySelector('[data-action="remove"]').addEventListener('click', () => {
+    setPath(mediaContent, item.path, '');
+    if (item.posterPath) setPath(mediaContent, item.posterPath, '');
+    markDirty(item, card);
+    setItemStatus(card, 'Cleared locally — click Save to publish.', '');
+    rerenderCard(item);
+  });
+
+  card.querySelector('[data-action="save"]').addEventListener('click', () => saveMediaItem(item, card));
+
+  if (item.kind === 'toggle'){
+    card.querySelector('[data-role="type-select"]').addEventListener('change', e => {
+      setPath(mediaContent, item.typePath, e.target.value);
+      markDirty(item, card);
+      rerenderCard(item);
+    });
+  }
+}
+
+/* ---------- Upload: unsigned direct-to-Cloudinary ----------
+   The browser uploads the file straight to Cloudinary using an UNSIGNED
+   upload preset — no backend, no API secret anywhere in this code. The
+   preset itself (set in the Cloudinary dashboard) is what controls what's
+   allowed; see cloudinary-config.js and the setup notes for how it's scoped. */
+async function uploadMediaFile(item, card, file){
+  const progress = card.querySelector('[data-role="upload-progress"]');
+  progress.classList.add('show');
+  progress.textContent = 'Uploading to Cloudinary…';
+  setItemStatus(card, '', '');
+  try {
+    const resourceType = (itemKindNow(item) === 'video' || file.type.startsWith('video/')) ? 'video' : 'image';
+
+    const form = new FormData();
+    form.append('file', file);
+    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    if (CLOUDINARY_FOLDER) form.append('folder', CLOUDINARY_FOLDER);
+
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
+      method: 'POST', body: form
+    });
+    const uploaded = await uploadRes.json();
+    if (!uploadRes.ok) throw new Error((uploaded.error && uploaded.error.message) || 'Cloudinary upload failed.');
+
+    setPath(mediaContent, item.path, uploaded.secure_url);
+    if (item.kind === 'toggle') setPath(mediaContent, item.typePath, resourceType === 'video' ? 'cloudinary_video' : 'cloudinary_image');
+    markDirty(item, card);
+    setItemStatus(card, 'Uploaded — click Save to publish.', 'success');
+    rerenderCard(item);
+  } catch (e) {
+    setItemStatus(card, e.message || 'Upload failed.', 'error');
+  } finally {
+    progress.classList.remove('show');
+  }
+}
+
+async function saveMediaItem(item, card){
+  const btn = card.querySelector('[data-action="save"]');
+  btn.disabled = true;
+  setItemStatus(card, 'Saving…', '');
+  try {
+    const contentRef = doc(db, ...CONTENT_DOC_PATH);
+    await setDoc(contentRef, mediaContent);
+    item._dirty = false;
+    card.classList.remove('is-dirty');
+    setItemStatus(card, 'Saved — live on the public site now.', 'success');
+  } catch (e) {
+    btn.disabled = false;
+    const msg = e.code === 'permission-denied'
+      ? 'Save rejected: not signed in as the authorized admin account.'
+      : (e.message || 'Save failed.');
+    setItemStatus(card, msg, 'error');
+  }
+}
+
+function showConnBanner(ok){
+  const el = document.getElementById('connBanner');
+  if (ok){
+    el.className = 'conn-banner show ok';
+    el.innerHTML = `Connected to Firestore (<code>content/site</code>). Changes you Save here go live on the public site immediately, for everyone.`;
+  } else {
+    el.className = 'conn-banner show warn';
+    el.innerHTML = `No content document found yet at <code>content/site</code> — showing built-in defaults. Click Save on any item to create it.`;
+  }
+}
+
+async function initMediaEditor(){
+  try {
+    const contentRef = doc(db, ...CONTENT_DOC_PATH);
+    const snap = await getDoc(contentRef);
+    if (snap.exists()) {
+      mediaContent = snap.data();
+      mediaBackendOk = true;
+    } else {
+      mediaContent = JSON.parse(JSON.stringify(DEFAULT_CONTENT));
+      mediaBackendOk = false;
+    }
+  } catch (e) {
+    mediaContent = JSON.parse(JSON.stringify(DEFAULT_CONTENT));
+    mediaBackendOk = false;
+  }
+  // Normalize defensively in case Firestore has a partial document.
+  mediaContent.hero = mediaContent.hero || { image:'', video:'', videoPoster:'' };
+  mediaContent.reel = mediaContent.reel || {};
+  mediaContent.projects = mediaContent.projects || [];
+  mediaContent.content = mediaContent.content || [];
+  mediaContent.cloudinary = mediaContent.cloudinary || { cloudName: CLOUDINARY_CLOUD_FALLBACK };
+
+  showConnBanner(mediaBackendOk);
+  renderMediaGroups();
+}
+</script>
+</body>
+</html>
