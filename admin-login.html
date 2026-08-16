@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Admin Login — SAEED</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<script>
+(function(){
+  try{
+    var stored = localStorage.getItem('saeed-theme');
+    var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --serif: "Bodoni Moda", "Playfair Display", serif;
+  --sans: "DM Sans", "Inter", sans-serif;
+  --ease: cubic-bezier(.16,.84,.24,1);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme="light"]{
+  --burgundy:#2A1019; --wine:#3A1720; --brown:#68453A; --rose:#C9827D; --peach:#D9968E;
+  --cream:#F4E7D8; --ivory:#F8F0E6; --ink:#241817;
+  --bg:#F8F0E6; --text:#241817; --text-dim:rgba(36,24,23,.7);
+  --border:rgba(36,24,23,.14); --card:rgba(36,24,23,.04);
+}
+:root[data-theme="dark"]{
+  --burgundy:#1a0a10; --wine:#241016; --brown:#8a6153; --rose:#d99893; --peach:#e6ada3;
+  --cream:#efe3d3; --ivory:#efe3d3; --ink:#efe3d3;
+  --bg:#15100f; --text:#efe3d3; --text-dim:rgba(239,227,211,.68);
+  --border:rgba(239,227,211,.14); --card:rgba(239,227,211,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--burgundy); color:var(--cream); font-family:var(--sans);
+  min-height:100svh; display:flex; align-items:center; justify-content:center;
+  padding: calc(2rem + var(--safe-t)) 1.5rem calc(2rem + var(--safe-b));
+  background: radial-gradient(120% 90% at 20% 10%, #4a1f29 0%, var(--burgundy) 45%, #150a0d 100%);
+}
+:root[data-theme="dark"] body{ background: radial-gradient(120% 90% at 20% 10%, #2a1116 0%, var(--burgundy) 45%, #0c0708 100%); }
+a{ color:inherit; }
+.wrap{ width:100%; max-width:400px; }
+.back{ display:inline-flex; align-items:center; gap:.5rem; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--peach); margin-bottom:2.4rem; min-height:44px; }
+.mark{ font-family:var(--serif); font-size:clamp(2rem,7vw,2.6rem); margin-bottom:.4rem; }
+.sub{ font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; color:var(--peach); margin-bottom:2.6rem; opacity:.85; }
+form{ display:flex; flex-direction:column; gap:1.3rem; }
+label{ font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; opacity:.7; display:block; margin-bottom:.5rem; }
+input{
+  width:100%; background:transparent; border:none; border-bottom:1px solid rgba(244,231,216,.35);
+  padding:.7rem 0; color:var(--cream); font-family:var(--sans); font-size:1rem; min-height:44px;
+}
+input:focus{ outline:none; border-color:var(--rose); }
+.field-error{ font-size:.7rem; color:var(--peach); min-height:1em; margin-top:.3rem; }
+button[type=submit]{
+  margin-top:.6rem; padding:.95rem 1.9rem; border:1px solid var(--cream); border-radius:100px;
+  font-size:.72rem; letter-spacing:.16em; font-weight:700; text-transform:uppercase;
+  background:var(--cream); color:var(--burgundy); min-height:44px; cursor:pointer;
+  transition:background .35s var(--ease), color .35s var(--ease);
+  font-family:inherit;
+}
+button[type=submit]:hover{ background:var(--peach); }
+button[type=submit][disabled]{ opacity:.5; cursor:not-allowed; }
+.status{ font-size:.8rem; padding:.8rem 1rem; border-radius:4px; display:none; margin-top:.4rem; }
+.status.show{ display:block; }
+.status.error{ background:rgba(217,150,142,.1); color:var(--peach); border:1px solid rgba(244,231,216,.3); }
+.note{ font-size:.68rem; opacity:.5; margin-top:2rem; line-height:1.6; }
+a:focus-visible, button:focus-visible, input:focus-visible{ outline:2px solid var(--rose); outline-offset:3px; }
+@media (prefers-reduced-motion: reduce){ *{ transition-duration:.001ms !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="back">← Back to portfolio</a>
+  <div class="mark">SAEED.</div>
+  <div class="sub">Admin Access</div>
+
+  <form id="loginForm" novalidate>
+    <div>
+      <label for="username">Email</label>
+      <input id="username" name="username" type="email" autocomplete="username" required />
+      <div class="field-error" id="err-username"></div>
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <div class="field-error" id="err-password"></div>
+    </div>
+    <button type="submit" id="submitBtn">Sign In</button>
+    <div class="status" id="formStatus" role="alert"></div>
+  </form>
+
+  <p class="note">
+    Access is restricted to authorized administrators. Sessions are verified
+    server-side; credentials are never stored in this page or in the browser.
+  </p>
+</div>
+
+<script type="module">
+/*
+  Authentication runs entirely through Firebase Auth (email/password).
+  Nothing here checks credentials itself — it hands them to Firebase and
+  trusts only Firebase's verdict. Session state is managed by the Firebase
+  SDK (persisted securely in IndexedDB by the SDK itself, not by this code).
+
+  Access control for *writes* is enforced server-side by Firestore Security
+  Rules (see firestore.rules) — a signed-in session here is not, by itself,
+  write access. admin.html re-checks the signed-in email before allowing
+  anything to render.
+*/
+import { auth, ADMIN_EMAIL } from './firebase-init.js';
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+
+const form = document.getElementById('loginForm');
+const status = document.getElementById('formStatus');
+const submitBtn = document.getElementById('submitBtn');
+
+function showStatus(msg){
+  status.textContent = msg;
+  status.classList.add('show', 'error');
+}
+
+// If already signed in as the admin, skip straight to the dashboard.
+onAuthStateChanged(auth, (user) => {
+  if (user && user.email === ADMIN_EMAIL) {
+    window.location.href = 'admin.html';
+  }
+});
+
+function friendlyError(code){
+  switch (code){
+    case 'auth/invalid-email': return 'That doesn\u2019t look like a valid email.';
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential': return 'Invalid email or password.';
+    case 'auth/too-many-requests': return 'Too many attempts. Please wait a moment and try again.';
+    default: return 'Could not sign in. Please try again.';
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  document.getElementById('err-username').textContent = '';
+  document.getElementById('err-password').textContent = '';
+  status.classList.remove('show');
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!username){ document.getElementById('err-username').textContent = 'Required.'; return; }
+  if (!password){ document.getElementById('err-password').textContent = 'Required.'; return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Signing In…';
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, username, password);
+    if (cred.user.email !== ADMIN_EMAIL) {
+      showStatus('This account is not authorized for admin access.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign In';
+      return;
+    }
+    window.location.href = 'admin.html';
+  } catch (err) {
+    showStatus(friendlyError(err.code));
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Sign In';
+  }
+});
+</script>
+</body>
+</html>
